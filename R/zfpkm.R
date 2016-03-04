@@ -17,6 +17,9 @@
 #interpretable).
 #
 #Modfied to use double colon references to external libraries
+#
+#JRT 4Mar2016
+#Added "floor" parameter to set lower limit on x axis log2FPKM value
 
 ### Libraries
 # library(dplyr)
@@ -40,18 +43,19 @@
 #' @param PlotFileName Provide a name for the plot file (.png) [default = zFPKM.PNG]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
 #' @param PlotDir Specify a subdirectory to place the plot in [default = "."]
+#' @param PlotXfloor Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable
 #'
 #' @return zFPKM data frame
 #'
 #' @examples
 #' MyzFPKM_dataframe = zFPKMTransformDF (MyFPKMdf, PlotFileName = "MyZFPKM.png",
-#'        FacetTitles = TRUE, PlotDir = "./MyOutputDir")
+#'        FacetTitles = TRUE, PlotDir = "./MyOutputDir", PlotXfloor = -20)
 #'
 #' @import dplyr ggplot2 tidyr
 #'
 #' @export
 zFPKMTransformDF <- function(fpkmDF, PlotFileName="zFPKM.PNG",
-                             FacetTitles=FALSE, PlotDir = ".") {
+                             FacetTitles=FALSE, PlotDir = ".", PlotXfloor = -20) {
   # Performs the zFPKM transform on RNA-seq FPKM data.
   #
   # Args:
@@ -88,12 +92,12 @@ zFPKMTransformDF <- function(fpkmDF, PlotFileName="zFPKM.PNG",
   }
 
   if (!is.null(PlotDir)) {
-  	PlotGaussianFitDF(outputs, FacetTitles)
+  	PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
     if (!file.exists(PlotDir)){
       dir.create(PlotDir)
     }
-    png(file=file.path(PlotDir, PlotFileName),width=8,height=6, units = 'in', res = 300)
-    PlotGaussianFitDF(outputs, FacetTitles)
+    png(file=file.path(PlotDir, PlotFileName),width=8,height=8, units = 'in', res = 300)
+    PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
     invisible ( dev.off() )
   }
 
@@ -207,7 +211,7 @@ PlotGaussianFit <- function(result) {
   print(p)
 }
 
-PlotGaussianFitDF <- function(results, FacetTitles=FALSE) {
+PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
   # Plot a grid of the log_2(FPKM) density and the fitted Gaussian (scale both
   # to the same density scale so that the curves overlap).
 
@@ -231,18 +235,21 @@ PlotGaussianFitDF <- function(results, FacetTitles=FALSE) {
 
     df <- data.frame(sample_name=name, log2fpkm=d$x, fpkm_density=d$y,
                      fitted_density_scaled=scaleFitted)
-
+#browser()
     megaDF <- megaDF %>% dplyr::bind_rows(df)
   }
 
   megaDFG <- megaDF %>% tidyr::gather(source, density, -c(log2fpkm, sample_name))
+
+  maxX = max(megaDFG$log2fpkm)
 
   p <- ggplot2::ggplot(megaDFG, ggplot2::aes(x=log2fpkm, y=density, color=source)) +
     ggplot2::facet_wrap(~ sample_name) +
     ggplot2::geom_line(alpha=0.7) +
     ggplot2::theme_bw() +
     ggplot2::labs(x="log2(FPKM)", y="[scaled] density")  +
-    ggplot2::theme(legend.position="top")
+    ggplot2::theme(legend.position="top") +
+    ggplot2::xlim(PlotXfloor, maxX)
 
     if (!FacetTitles) {  #remove the title on each facet
       p = p  + ggplot2::theme(strip.background = ggplot2::element_blank(),
