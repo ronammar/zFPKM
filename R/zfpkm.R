@@ -16,6 +16,8 @@
 #    Modfied to use double colon references to external libraries
 # JRT 4Mar2016:
 #   Added "floor" parameter to set lower limit on x axis log2FPKM value
+# RA 10May2017:
+#   Updated plotting options. Minor refactor. Using checkmate.
 
 ### Libraries
 # library(dplyr)
