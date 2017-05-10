@@ -27,18 +27,18 @@
 #'
 #' Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is
 #' based on the publication by Hart et al., 2013 (Pubmed ID 24215113). Reference recommends
-#' using zFPKM >-3 to select expressed genes.  Validated with encode open/closed promoter chromatin structure epigenetic
-#' data on six of the ENCODE cell lines.  Works well for gene level data using FPKM or TPM.  Does not appear to calibrate well
+#' using zFPKM > -3 to select expressed genes.  Validated with encode open/closed promoter chromatin structure epigenetic
+#' data on six of the ENCODE cell lines.  Works well for gene level data using FPKM or TPM. Does not appear to calibrate well
 #' for transcript level data.
 #'
-#' @author Ron Ammar, \email{ron.ammar@@bms.com}
+#' @author Ron Ammar, \email{ron.ammar@bms.com}
 #' @references \url{http://www.ncbi.nlm.nih.gov/pubmed/24215113}
 #' @keywords zFPKM
 #'
 #' @param fpkmDF FPKM (or TPM) dataframe
-#' @param PlotFileName Provide a name for the plot file (.png) [default = zFPKM.PNG]
+#' @param plotZFPKM Plot the scaled log_2(FPKM) and fitted Gaussian densities to screen [default = TRUE]
+#' @param PlotFileName Plot the densities to specified file (.png) [default = NULL]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
-#' @param PlotDir Specify a subdirectory to place the plot in [default = "."]
 #' @param PlotXfloor Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable
 #'
 #' @return zFPKM data frame
@@ -47,11 +47,11 @@
 #' MyzFPKM_dataframe = zFPKMTransformDF (MyFPKMdf, PlotFileName = "MyZFPKM.png",
 #'        FacetTitles = TRUE, PlotDir = "./MyOutputDir", PlotXfloor = -20)
 #'
-#' @import dplyr ggplot2 tidyr
+#' @import checkmate dplyr ggplot2 tidyr
 #'
 #' @export
-zFPKMTransformDF <- function(fpkmDF, PlotFileName="zFPKM.PNG",
-                             FacetTitles=FALSE, PlotDir = ".", PlotXfloor = -20) {
+zFPKMTransformDF <- function(fpkmDF, plotZFPKM=TRUE, PlotFileName=NULL,
+                             FacetTitles=FALSE, PlotXfloor = -20) {
   # Performs the zFPKM transform on RNA-seq FPKM data.
   #
   # Args:
@@ -71,13 +71,8 @@ zFPKMTransformDF <- function(fpkmDF, PlotFileName="zFPKM.PNG",
   #
   # Returns:
   #   The zFPKM transformed data frame of the input FPKM data
-  if (is.null(PlotFileName)){
-  		PlotFileName = "zFPKM_Facet.png"
-  }
 
-  if (!is.data.frame(fpkmDF)) {
-    stop("argument 'fpkmDF' must be a data frame")
-  }
+  assertDataFrame(fpkmDF)
 
   zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
   outputs <- list()
@@ -87,14 +82,14 @@ zFPKMTransformDF <- function(fpkmDF, PlotFileName="zFPKM.PNG",
     outputs[[c]] <- output
   }
 
-  if (!is.null(PlotDir)) {
-  	PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
-    if (!file.exists(PlotDir)){
-      dir.create(PlotDir)
-    }
-    png(file=file.path(PlotDir, PlotFileName),width=8,height=8, units = 'in', res = 300)
+  if (plotZFPKM) {
     PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
-    invisible ( dev.off() )
+  }
+
+  if (!is.null(PlotFileName)) {
+    png(file=PlotFileName, width=8, height=8, units='in', res=300)
+    PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
+    invisible(dev.off())
   }
 
   return(zFPKMDF)
