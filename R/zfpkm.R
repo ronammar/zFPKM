@@ -1,25 +1,21 @@
-
-
-#author <- "Ron Ammar <ron.ammar@bms.com>"
-#company <- "Bristol-Myers Squibb Co."
-#date <- as.Date("2015-07-08")
-#version <- "0.1.0"
-#objective <- "Perform the zFPKM transform on RNA-seq FPKM data."
-#summary <- "Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is
-#based on the publication by Hart et al., 2013 (Pubmed ID 24215113)."
-
-#JRT 8Sep2015:
-#Modified zFPKMTransformDF to optionally allow plotting and saving the
-#plot to a PNG file and set an output path.
-#
-#Modified PlotGaussianFitDF to move legend to the top and optionally remove facet
-#titles on each individual plot (to allow more data to be plotted and still visually
-#interpretable).
-#
-#Modfied to use double colon references to external libraries
-#
-#JRT 4Mar2016
-#Added "floor" parameter to set lower limit on x axis log2FPKM value
+#AUTHOR: Ron Ammar <ron.ammar@bms.com>, John R Thompson <john.thompson@bms.com>
+#COMPANY: Bristol-Myers Squibb Co.
+#DATE: 2015-07-08
+#VERSION: 0.1.0
+#OBJECTIVE: Perform the zFPKM transform on RNA-seq FPKM data.
+#SUMMARY:
+#  Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is based on
+#  the publication by Hart et al., 2013 (Pubmed ID 24215113).
+#CHANGELOG:
+# JRT 8Sep2015:
+#   Modified zFPKMTransformDF to optionally allow plotting and saving the
+#   plot to a PNG file and set an output path.
+#   Modified PlotGaussianFitDF to move legend to the top and optionally remove facet
+#   titles on each individual plot (to allow more data to be plotted and still visually
+#   interpretable).
+#    Modfied to use double colon references to external libraries
+# JRT 4Mar2016:
+#   Added "floor" parameter to set lower limit on x axis log2FPKM value
 
 ### Libraries
 # library(dplyr)
