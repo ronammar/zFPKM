@@ -44,8 +44,8 @@
 #' @return zFPKM data frame
 #'
 #' @examples
-#' MyzFPKM_dataframe = zFPKMTransformDF (MyFPKMdf, PlotFileName = "MyZFPKM.png",
-#'        FacetTitles = TRUE, PlotDir = "./MyOutputDir", PlotXfloor = -20)
+#' zFPKMDat <- zFPKMTransformDF(MyFPKMdf)
+#' zFPKMDat <- zFPKMTransformDF(MyFPKMdf, plotZFPKM=FALSE, PlotFileName="Figs/zFPKM.png")
 #'
 #' @import checkmate dplyr ggplot2 tidyr
 #'

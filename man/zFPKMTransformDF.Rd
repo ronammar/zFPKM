@@ -4,17 +4,17 @@
 \alias{zFPKMTransformDF}
 \title{zFPKM Transformation}
 \usage{
-zFPKMTransformDF(fpkmDF, PlotFileName = "zFPKM.PNG", FacetTitles = FALSE,
-  PlotDir = ".", PlotXfloor = -20)
+zFPKMTransformDF(fpkmDF, plotZFPKM = TRUE, PlotFileName = NULL,
+  FacetTitles = FALSE, PlotXfloor = -20)
 }
 \arguments{
 \item{fpkmDF}{FPKM (or TPM) dataframe}
 
-\item{PlotFileName}{Provide a name for the plot file (.png) [default = zFPKM.PNG]}
+\item{plotZFPKM}{Plot the scaled log_2(FPKM) and fitted Gaussian densities to screen [default = TRUE]}
+
+\item{PlotFileName}{Plot the densities to specified file (.png) [default = NULL]}
 
 \item{FacetTitles}{use to label each facet with the sample name [default = FALSE]}
-
-\item{PlotDir}{Specify a subdirectory to place the plot in [default = "."]}
 
 \item{PlotXfloor}{Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable}
 }
@@ -24,20 +24,19 @@ zFPKM data frame
 \description{
 Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is
 based on the publication by Hart et al., 2013 (Pubmed ID 24215113). Reference recommends
-using zFPKM >-3 to select expressed genes.  Validated with encode open/closed promoter chromatin structure epigenetic
-data on six of the ENCODE cell lines.  Works well for gene level data using FPKM or TPM.  Does not appear to calibrate well
+using zFPKM > -3 to select expressed genes.  Validated with encode open/closed promoter chromatin structure epigenetic
+data on six of the ENCODE cell lines.  Works well for gene level data using FPKM or TPM. Does not appear to calibrate well
 for transcript level data.
 }
 \examples{
-MyzFPKM_dataframe = zFPKMTransformDF (MyFPKMdf, PlotFileName = "MyZFPKM.png",
-       FacetTitles = TRUE, PlotDir = "./MyOutputDir", PlotXfloor = -20)
+zFPKMDat <- zFPKMTransformDF(MyFPKMdf)
+zFPKMDat <- zFPKMTransformDF(MyFPKMdf, plotZFPKM=FALSE, PlotFileName="Figs/zFPKM.png")
 
-}
-\author{
-Ron Ammar, \email{ron.ammar@bms.com}
 }
 \references{
 \url{http://www.ncbi.nlm.nih.gov/pubmed/24215113}
 }
+\author{
+Ron Ammar, \email{ron.ammar@bms.com}
+}
 \keyword{zFPKM}
-
