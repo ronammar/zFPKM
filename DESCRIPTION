@@ -15,7 +15,7 @@ License: GPL-3 | file LICENSE
 URL: https://github.com/ronammar/zFPKM/
 BugReports: https://github.com/ronammar/zFPKM/issues
 Imports: checkmate, dplyr, ggplot2, tidyr
-Suggests: knitr
+Suggests: knitr, limma, edgeR, GEOquery, stringr
 VignetteBuilder: knitr
 biocViews: RNASeq, FeatureExtraction, Software, GeneExpression
 LazyData: true

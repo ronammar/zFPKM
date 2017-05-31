@@ -4,7 +4,7 @@ author: "Ron Ammar"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Introduction to zFPKM Transformation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,6 +14,8 @@ rm(list=ls())
 set.seed(8675309)
 options(stringsAsFactors=FALSE)
 library(printr)
+
+knitr::opts_chunk$set(message=FALSE, fig.align="center", fig.width=8, fig.height=6)
 ```
 
 ## Summary
@@ -28,15 +30,16 @@ data.
 
 We calculate zFPKM for existing FPKM from [gse94802](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=gse94802).
 
-```{r, message=FALSE}
+```{r}
 library(dplyr)
 library(GEOquery)
 library(stringr)
+library(tidyr)
 
 getSpecificGEOSupp <- function(url) {
   temp <- tempfile()
   download.file(url, temp)
-  out <- read.csv(gzfile(temp), row.names=1)
+  out <- read.csv(gzfile(temp), row.names=1, check.names=FALSE)
   out <- select(out, -MGI_Symbol)
   return(out)
 }
@@ -50,7 +53,9 @@ counts <- getSpecificGEOSupp(gse94802_counts)
 esetlist <- getGEO("gse94802")
 doe <- pData(esetlist[[1]]) %>%
   mutate(condition=ifelse(str_detect(title, regex("control", ignore_case=TRUE)), 
-                          "control", "mutant"))
+                          "control", "mutant"),
+         sample_id=(str_match(title, "rep\\d_(.+)")[, 2]))
+rownames(doe) <- doe$sample_id
 
 rm(esetlist, gse94802_fpkm, gse94802_counts)  # clear namespace
 ```
@@ -71,7 +76,38 @@ zfpkm <- zFPKMTransformDF(fpkm)
 To determine which genes are *active*, we compute the median expression within each group.
 
 ```{r}
-activeGenes <- which(rowMeans(zfpkm) > -3)
+activeGenes <- zfpkm %>%
+  mutate(gene=rownames(zfpkm)) %>%
+  gather(sample_id, zfpkm, -gene) %>%
+  left_join(select(doe, sample_id, condition), by="sample_id") %>%
+  group_by(gene, condition) %>%
+  summarize(median_zfpkm=median(zfpkm)) %>%
+  ungroup() %>%
+  mutate(active=(median_zfpkm > -3)) %>%
+  filter(active) %>%
+  select(gene) %>%
+  distinct()
+
+counts <- counts[activeGenes$gene, ]
+```
+
+In the following DE analysis, we only use genes that were active in either group.
+
+```{r}
+library(limma)
+library(edgeR)
+
+# Generate normalized log2CPM from counts AFTER we filter for protein-coding
+# genes that are detectably expressed.
+dge <- DGEList(counts=counts)
+dge <- calcNormFactors(dge)
+design <- model.matrix(~ 0 + condition, data=doe)
+vq <- voomWithQualityWeights(dge, design, plot=TRUE)
+fit <- lmFit(vq, design)
+contrastMatrix <- makeContrasts(conditioncontrol - conditionmutant, levels=design)
+fit <- contrasts.fit(fit, contrastMatrix)
+fit <- eBayes(fit, robust=TRUE)
+deGenes <- topTable(fit, number=Inf)
 ```
 
 
