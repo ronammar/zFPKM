@@ -3,9 +3,9 @@
 ##Summary
 
 Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is based on the publication by [Hart et al., 2013 
-(Pubmed ID 24215113)](https://www.ncbi.nlm.nih.gov/pubmed/24215113). Reference recommends using zFPKM > -3 to select 
-expressed genes. Validated with encode open/closed promoter chromatin structure epigenetic data on six of the ENCODE 
-cell lines. Works well for gene level data using FPKM or TPM. Does not appear to calibrate well for transcript level 
+(Pubmed ID 24215113)](https://www.ncbi.nlm.nih.gov/pubmed/24215113). The reference recommends using zFPKM > -3 to select 
+expressed genes. Validated with ENCODE open/closed promoter chromatin structure epigenetic data on six of the ENCODE 
+cell lines. It works well for gene level data using FPKM or TPM, but does not appear to calibrate well for transcript level 
 data.
 
 ## Example
