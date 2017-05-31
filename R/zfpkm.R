@@ -46,8 +46,14 @@
 #' @return zFPKM data frame
 #'
 #' @examples
+#' library(dplyr)
+#' gse94802 <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94802/suppl/GSE94802_Minkina_etal_normalized_FPKM.csv.gz"
+#' temp <- tempfile()
+#' download.file(gse94802, temp)
+#' fpkm <- read.csv(gzfile(temp), row.names=1)
+#' MyFPKMdf <- select(fpkm, -MGI_Symbol)
+#'
 #' zFPKMDat <- zFPKMTransformDF(MyFPKMdf)
-#' zFPKMDat <- zFPKMTransformDF(MyFPKMdf, plotZFPKM=FALSE, PlotFileName="Figs/zFPKM.png")
 #'
 #' @import checkmate dplyr ggplot2 tidyr
 #'

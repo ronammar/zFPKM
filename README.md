@@ -26,7 +26,7 @@ zfpkm <- zFPKMTransformDF(fpkm)
 
 The `zFPKMTransformDF` function also optionally  plots the Guassian fit to the FPKM data for which the z-scores are based.
 
-![](README_plot.png)
+![](figs/README_plot.png)
 
 To determine which genes are *active* across *all* samples, we use `rowMeans()` and a zFPKM cutoff of -3, as suggested
 by the authors.

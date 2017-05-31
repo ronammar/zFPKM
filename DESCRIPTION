@@ -10,8 +10,9 @@ Description: Perform the zFPKM transform on RNA-seq FPKM data. This algorithm
     recommends using zFPKM > -3 to select expressed genes. Validated with encode
     open/closed chromosome data. Works well for gene level data using FPKM or TPM.
     Does not appear to calibrate well for transcript level data.
-License: GNU GENERAL PUBLIC LICENSE
+License: GPL-3 | file LICENSE
 URL: https://github.com/ronammar/zFPKM/
 BugReports: https://github.com/ronammar/zFPKM/issues
+Imports: checkmate, dplyr, ggplot2, tidyr
 LazyData: true
 RoxygenNote: 6.0.1
