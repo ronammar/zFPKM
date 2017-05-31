@@ -1,4 +1,13 @@
-# zFPKM Transformation
+---
+title: "Introduction to zFPKM Transformation"
+author: "Ron Ammar"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
 
 ## Summary
 
@@ -8,17 +17,22 @@ expressed genes. Validated with ENCODE open/closed promoter chromatin structure 
 cell lines. It works well for gene level data using FPKM or TPM, but does not appear to calibrate well for transcript level 
 data.
 
-## Example
+## Identifying *active* genes
 
-We calculate zFPKM for existing normalized FPKM from [GSE94802](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE94802).
+We calculate zFPKM for existing FPKM from [GSE96106](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE96106).
 
 ```{r}
 library(dplyr)
-gse94802 <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94802/suppl/GSE94802_Minkina_etal_normalized_FPKM.csv.gz"
-temp <- tempfile()
-download.file(gse94802, temp)
-fpkm <- read.csv(gzfile(temp), row.names=1)
-fpkm <- select(fpkm, -MGI_Symbol)
+library(GEOquery)
+library(stringr)
+
+esetlist <- getGEO("GSE96106")
+suppFiles <- getGEOSuppFiles("GSE96106")
+fileNames <- rownames(suppFiles)
+
+doe <- pData(esetlist[[1]])
+fpkm <- read.delim(gzfile(fileNames[which(str_detect(fileNames, "fpkm"))]))
+counts <- read.delim(gzfile(fileNames[which(str_detect(fileNames, "count.matrix"))]))
 ```
 
 The `zFPKMTransformDF` function also optionally  plots the Guassian fit to the FPKM data for which the z-scores are based.
@@ -35,9 +49,13 @@ by the authors.
 activeGenes <- which(rowMeans(zfpkm) > -3)
 ```
 
----
 
 ### References
 
 Hart T, Komori HK, LaMere S, Podshivalova K, Salomon DR. Finding the active genes in deep RNA-seq gene expression 
 studies. BMC Genomics. 2013 Nov 11;14:778. doi: 10.1186/1471-2164-14-778.
+
+
+```{r}
+sessionInfo()
+```
