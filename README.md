@@ -1,6 +1,6 @@
-#zFPKM Transformation
+# zFPKM Transformation
 
-##Summary
+## Summary
 
 Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is based on the publication by [Hart et al., 2013 
 (Pubmed ID 24215113)](https://www.ncbi.nlm.nih.gov/pubmed/24215113). The reference recommends using zFPKM > -3 to select 
@@ -37,7 +37,7 @@ activeGenes <- which(rowMeans(zfpkm) > -3)
 
 --
 
-###References
+### References
 
 Hart T, Komori HK, LaMere S, Podshivalova K, Salomon DR. Finding the active genes in deep RNA-seq gene expression 
 studies. BMC Genomics. 2013 Nov 11;14:778. doi: 10.1186/1471-2164-14-778.
