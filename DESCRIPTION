@@ -1,6 +1,6 @@
 Package: zFPKM
 Title: A suite of functions to facilitate zFPKM transformations
-Version: 0.1.0
+Version: 0.99.0
 Authors@R: person("Ron", "Ammar", email = "ron.ammar@bms.com",
                   role = c("aut", "cre"))
 	   person("John", "Thompson", email = "john.thompson@bms.com",
