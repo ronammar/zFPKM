@@ -64,12 +64,6 @@ se <- SummarizedExperiment(assays=SimpleList(fpkm=getSpecificGEOSupp(gse94802_fp
 rm(esetlist, gse94802_fpkm, gse94802_counts, doe, colData, getSpecificGEOSupp)
 ```
 
-Our sample data are divided as follows
-
-```{r}
-count(as.data.frame(colData(se)), condition) %>% as.data.frame()
-```
-
 We compute zFPKM.
 
 ```{r}
