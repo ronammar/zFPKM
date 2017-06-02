@@ -89,7 +89,6 @@ zFPKM<- function(fpkmDF) {
 #'  to a gene/transcript and each column corresponds to a sample. NOTE: these
 #'  are NOT log_2 transformed. Also, the rownames are gene/transcript names and
 #'  NOT included as a separate column
-#' @param plotZFPKM Plot the scaled log_2(FPKM) and fitted Gaussian densities to screen [default = TRUE]
 #' @param PlotFileName Plot the densities to specified file (.png) [default = NULL]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
 #' @param PlotXfloor Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable
@@ -109,8 +108,7 @@ zFPKM<- function(fpkmDF) {
 #' @import checkmate dplyr ggplot2 tidyr
 #'
 #' @export
-zFPKMPlot <- function(fpkmDF, plotZFPKM=TRUE, PlotFileName=NULL,
-                      FacetTitles=FALSE, PlotXfloor = -20) {
+zFPKMPlot <- function(fpkmDF, PlotFileName=NULL, FacetTitles=FALSE, PlotXfloor=-20) {
 
   assertDataFrame(fpkmDF)
 
@@ -122,9 +120,7 @@ zFPKMPlot <- function(fpkmDF, plotZFPKM=TRUE, PlotFileName=NULL,
     outputs[[c]] <- output
   }
 
-  if (plotZFPKM) {
-    PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
-  }
+  PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
 
   if (!is.null(PlotFileName)) {
     png(file=PlotFileName, width=8, height=8, units='in', res=300)

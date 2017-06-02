@@ -4,16 +4,14 @@
 \alias{zFPKMPlot}
 \title{zFPKM Transformation}
 \usage{
-zFPKMPlot(fpkmDF, plotZFPKM = TRUE, PlotFileName = NULL,
-  FacetTitles = FALSE, PlotXfloor = -20)
+zFPKMPlot(fpkmDF, PlotFileName = NULL, FacetTitles = FALSE,
+  PlotXfloor = -20)
 }
 \arguments{
 \item{fpkmDF}{A data frame of raw FPKM (or TPM) values. Each row corresponds
 to a gene/transcript and each column corresponds to a sample. NOTE: these
 are NOT log_2 transformed. Also, the rownames are gene/transcript names and
 NOT included as a separate column}
-
-\item{plotZFPKM}{Plot the scaled log_2(FPKM) and fitted Gaussian densities to screen [default = TRUE]}
 
 \item{PlotFileName}{Plot the densities to specified file (.png) [default = NULL]}
 
