@@ -1,7 +1,6 @@
 #AUTHOR: Ron Ammar <ron.ammar@bms.com>, John R Thompson <john.thompson@bms.com>
 #COMPANY: Bristol-Myers Squibb Co.
 #DATE: 2015-07-08
-#VERSION: 0.1.0
 #OBJECTIVE: Perform the zFPKM transform on RNA-seq FPKM data.
 #SUMMARY:
 #  Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is based on
@@ -18,6 +17,8 @@
 #   Added "floor" parameter to set lower limit on x axis log2FPKM value
 # RA 10May2017:
 #   Updated plotting options. Minor refactor. Using checkmate.
+# RA 1Jun2017:
+#   Separating zFPKM calc and plotting as per Bioconductor review suggestion.
 
 ### Libraries
 # library(dplyr)
@@ -37,7 +38,57 @@
 #' @references \url{http://www.ncbi.nlm.nih.gov/pubmed/24215113}
 #' @keywords zFPKM
 #'
-#' @param fpkmDF FPKM (or TPM) dataframe
+#' @param fpkmDF A data frame of raw FPKM (or TPM) values. Each row corresponds
+#'  to a gene/transcript and each column corresponds to a sample. NOTE: these
+#'  are NOT log_2 transformed. Also, the rownames are gene/transcript names and
+#'  NOT included as a separate column
+#'
+#' @return zFPKM data frame
+#'
+#' @examples
+#' library(dplyr)
+#' gse94802 <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94802/suppl/GSE94802_Minkina_etal_normalized_FPKM.csv.gz"
+#' temp <- tempfile()
+#' download.file(gse94802, temp)
+#' fpkm <- read.csv(gzfile(temp), row.names=1)
+#' MyFPKMdf <- select(fpkm, -MGI_Symbol)
+#'
+#' zfpkm <- zFPKM(MyFPKMdf)
+#'
+#' @import checkmate dplyr ggplot2 tidyr
+#'
+#' @export
+zFPKM<- function(fpkmDF) {
+
+  assertDataFrame(fpkmDF)
+
+  zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
+  outputs <- list()
+  for (c in colnames(fpkmDF)) {
+    output <- zFPKMCalc(fpkmDF[, c])
+    zFPKMDF[, c] <- output$z
+    outputs[[c]] <- output
+  }
+
+  return(zFPKMDF)
+}
+
+#' zFPKM Transformation
+#'
+#' Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is
+#' based on the publication by Hart et al., 2013 (Pubmed ID 24215113). Reference recommends
+#' using zFPKM > -3 to select expressed genes.  Validated with encode open/closed promoter chromatin structure epigenetic
+#' data on six of the ENCODE cell lines.  Works well for gene level data using FPKM or TPM. Does not appear to calibrate well
+#' for transcript level data.
+#'
+#' @author Ron Ammar, \email{ron.ammar@bms.com}
+#' @references \url{http://www.ncbi.nlm.nih.gov/pubmed/24215113}
+#' @keywords zFPKM
+#'
+#' @param fpkmDF A data frame of raw FPKM (or TPM) values. Each row corresponds
+#'  to a gene/transcript and each column corresponds to a sample. NOTE: these
+#'  are NOT log_2 transformed. Also, the rownames are gene/transcript names and
+#'  NOT included as a separate column
 #' @param plotZFPKM Plot the scaled log_2(FPKM) and fitted Gaussian densities to screen [default = TRUE]
 #' @param PlotFileName Plot the densities to specified file (.png) [default = NULL]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
@@ -53,32 +104,13 @@
 #' fpkm <- read.csv(gzfile(temp), row.names=1)
 #' MyFPKMdf <- select(fpkm, -MGI_Symbol)
 #'
-#' zFPKMDat <- zFPKMTransformDF(MyFPKMdf)
+#' zFPKMPlot(MyFPKMdf)
 #'
 #' @import checkmate dplyr ggplot2 tidyr
 #'
 #' @export
-zFPKMTransformDF <- function(fpkmDF, plotZFPKM=TRUE, PlotFileName=NULL,
-                             FacetTitles=FALSE, PlotXfloor = -20) {
-  # Performs the zFPKM transform on RNA-seq FPKM data.
-  #
-  # Args:
-  #   fpkmDF: a data frame of raw FPKM values. Each row corresponds to a
-  #           gene/transcript and each column corresponds to a sample.
-  #           NOTE: these are NOT log_2 transformed. Also, the rownames are
-  #           gene/transcript names and NOT included as a separate column
-  #
-  #	  PlotFileName: Set to NULL to disable plotting (which you might want to
-  #	        do if you have more than 200 samples).  Set to anyname.PNG to enable both
-  #	        printing the plot and saving to the speficied PNG file.
-  #
-  #	  FacetTitles: Default removes cluttter allowing more samples to be
-  #	        legibly plotted.  Set to TRUE to have each sample name as a plot title.
-  #
-  #	  PlotDir:  Sets a directory to save the plot in.
-  #
-  # Returns:
-  #   The zFPKM transformed data frame of the input FPKM data
+zFPKMPlot <- function(fpkmDF, plotZFPKM=TRUE, PlotFileName=NULL,
+                      FacetTitles=FALSE, PlotXfloor = -20) {
 
   assertDataFrame(fpkmDF)
 
@@ -99,8 +131,6 @@ zFPKMTransformDF <- function(fpkmDF, plotZFPKM=TRUE, PlotFileName=NULL,
     PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
     invisible(dev.off())
   }
-
-  return(zFPKMDF)
 }
 
 zFPKMTransform <- function(fpkm) {

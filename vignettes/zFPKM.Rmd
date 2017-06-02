@@ -70,11 +70,17 @@ Our sample data are divided as follows
 count(as.data.frame(colData(se)), condition) %>% as.data.frame()
 ```
 
-We compute zFPKM. The `zFPKMTransformDF` function also optionally plots the Guassian fit to the FPKM data for which the z-scores are based.
+We compute zFPKM.
 
 ```{r}
 library(zFPKM)
-assay(se, "zfpkm") <- zFPKMTransformDF(assay(se, "fpkm"))
+assay(se, "zfpkm") <- zFPKM(assay(se, "fpkm"))
+```
+
+We can also plot the Guassian fit to the FPKM data for which the z-scores are based.
+
+```{r}
+zFPKMPlot(assay(se, "fpkm"))
 ```
 
 To determine which genes are *active*, we compute the median expression within each group.
