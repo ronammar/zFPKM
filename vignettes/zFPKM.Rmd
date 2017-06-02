@@ -34,6 +34,7 @@ We calculate zFPKM for existing FPKM from [gse94802](https://www.ncbi.nlm.nih.go
 library(dplyr)
 library(GEOquery)
 library(stringr)
+library(SummarizedExperiment)
 library(tidyr)
 
 getSpecificGEOSupp <- function(url) {
@@ -47,39 +48,42 @@ getSpecificGEOSupp <- function(url) {
 gse94802_fpkm <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94802/suppl/GSE94802_Minkina_etal_normalized_FPKM.csv.gz"
 gse94802_counts <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94802/suppl/GSE94802_Minkina_etal_raw_counts.csv.gz"
 
-fpkm <- getSpecificGEOSupp(gse94802_fpkm)
-counts <- getSpecificGEOSupp(gse94802_counts)
-
 esetlist <- getGEO("gse94802")
-doe <- pData(esetlist[[1]]) %>%
-  mutate(condition=ifelse(str_detect(title, regex("control", ignore_case=TRUE)), 
-                          "control", "mutant"),
-         sample_id=(str_match(title, "rep\\d_(.+)")[, 2]))
-rownames(doe) <- doe$sample_id
+doe <- pData(esetlist[[1]])
 
-rm(esetlist, gse94802_fpkm, gse94802_counts)  # clear namespace
+colData <- DataFrame(
+  condition=ifelse(str_detect(doe$title, regex("control", ignore_case=TRUE)), "control", "mutant"),
+  sample_id=str_match(doe$title, "rep\\d_(.+)")[, 2],
+  row.names=str_match(doe$title, "rep\\d_(.+)")[, 2])
+
+se <- SummarizedExperiment(assays=SimpleList(fpkm=getSpecificGEOSupp(gse94802_fpkm),
+                                             counts=getSpecificGEOSupp(gse94802_counts)),
+                           colData=colData)
+
+# clear namespace
+rm(esetlist, gse94802_fpkm, gse94802_counts, doe, colData, getSpecificGEOSupp)
 ```
 
 Our sample data are divided as follows
 
 ```{r}
-count(doe, condition) %>% as.data.frame()
+count(as.data.frame(colData(se)), condition) %>% as.data.frame()
 ```
 
 We compute zFPKM. The `zFPKMTransformDF` function also optionally plots the Guassian fit to the FPKM data for which the z-scores are based.
 
 ```{r}
 library(zFPKM)
-zfpkm <- zFPKMTransformDF(fpkm)
+assay(se, "zfpkm") <- zFPKMTransformDF(assay(se, "fpkm"))
 ```
 
 To determine which genes are *active*, we compute the median expression within each group.
 
 ```{r}
-activeGenes <- zfpkm %>%
-  mutate(gene=rownames(zfpkm)) %>%
+activeGenes <- assay(se, "zfpkm") %>%
+  mutate(gene=rownames(assay(se, "zfpkm"))) %>%
   gather(sample_id, zfpkm, -gene) %>%
-  left_join(select(doe, sample_id, condition), by="sample_id") %>%
+  left_join(select(as.data.frame(colData(se)), sample_id, condition), by="sample_id") %>%
   group_by(gene, condition) %>%
   summarize(median_zfpkm=median(zfpkm)) %>%
   ungroup() %>%
@@ -88,7 +92,9 @@ activeGenes <- zfpkm %>%
   select(gene) %>%
   distinct()
 
-counts <- counts[activeGenes$gene, ]
+seActive <- SummarizedExperiment(
+  assays=SimpleList(counts=as.matrix(assay(se, "counts")[activeGenes$gene, ])),
+  colData=colData(se))
 ```
 
 In the following DE analysis, we only use genes that were active in either group.
@@ -99,9 +105,9 @@ library(edgeR)
 
 # Generate normalized log2CPM from counts AFTER we filter for protein-coding
 # genes that are detectably expressed.
-dge <- DGEList(counts=counts)
+dge <- DGEList(counts=assay(seActive, "counts"))
 dge <- calcNormFactors(dge)
-design <- model.matrix(~ 0 + condition, data=doe)
+design <- model.matrix(~ 0 + condition, data=colData(seActive))
 vq <- voomWithQualityWeights(dge, design, plot=TRUE)
 fit <- lmFit(vq, design)
 contrastMatrix <- makeContrasts(conditioncontrol - conditionmutant, levels=design)
