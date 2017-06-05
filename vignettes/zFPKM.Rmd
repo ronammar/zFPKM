@@ -48,7 +48,12 @@ getSpecificGEOSupp <- function(url) {
 gse94802_fpkm <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94802/suppl/GSE94802_Minkina_etal_normalized_FPKM.csv.gz"
 gse94802_counts <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE94nnn/GSE94802/suppl/GSE94802_Minkina_etal_raw_counts.csv.gz"
 
-esetlist <- getGEO("gse94802")
+if (file.exists("gse94802.rds")) {
+  esetlist <- readRDS("gse94802.rds")
+} else {
+  esetlist <- getGEO("gse94802")
+}
+
 doe <- pData(esetlist[[1]])
 
 colData <- DataFrame(
