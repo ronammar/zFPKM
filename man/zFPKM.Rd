@@ -4,13 +4,16 @@
 \alias{zFPKM}
 \title{zFPKM Transformation}
 \usage{
-zFPKM(fpkmDF)
+zFPKM(fpkmDF, assayName = "fpkm")
 }
 \arguments{
-\item{fpkmDF}{A data frame of raw FPKM (or TPM) values. Each row corresponds
-to a gene/transcript and each column corresponds to a sample. NOTE: these
-are NOT log_2 transformed. Also, the rownames are gene/transcript names and
-NOT included as a separate column}
+\item{fpkmDF}{A SummarizedExperiment or data frame containing raw FPKM (or TPM)
+values. Each row corresponds to a gene/transcript and each column corresponds
+to a sample.
+NOTE: these are NOT log_2 transformed. Also, the rownames are gene/transcript
+names and NOT included as a separate column
+@param assayName When input is a SummarizedExperiment, names the specific
+assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]}
 }
 \value{
 zFPKM data frame

@@ -4,14 +4,17 @@
 \alias{zFPKMPlot}
 \title{zFPKM Transformation}
 \usage{
-zFPKMPlot(fpkmDF, PlotFileName = NULL, FacetTitles = FALSE,
-  PlotXfloor = -20)
+zFPKMPlot(fpkmDF, assayName = "fpkm", PlotFileName = NULL,
+  FacetTitles = FALSE, PlotXfloor = -20)
 }
 \arguments{
-\item{fpkmDF}{A data frame of raw FPKM (or TPM) values. Each row corresponds
-to a gene/transcript and each column corresponds to a sample. NOTE: these
-are NOT log_2 transformed. Also, the rownames are gene/transcript names and
-NOT included as a separate column}
+\item{fpkmDF}{A SummarizedExperiment or data frame containing raw FPKM (or TPM)
+values. Each row corresponds to a gene/transcript and each column corresponds
+to a sample.
+NOTE: these are NOT log_2 transformed. Also, the rownames are gene/transcript
+names and NOT included as a separate column
+@param assayName When input is a SummarizedExperiment, names the specific
+assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]}
 
 \item{PlotFileName}{Plot the densities to specified file (.png) [default = NULL]}
 

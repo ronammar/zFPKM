@@ -2,8 +2,8 @@
 
 export(zFPKM)
 export(zFPKMPlot)
+import(SummarizedExperiment)
 import(checkmate)
 import(dplyr)
 import(ggplot2)
 import(tidyr)
-import(SummarizedExperiment)
