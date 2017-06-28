@@ -11,8 +11,9 @@ zFPKM(fpkmDF, assayName = "fpkm")
 values. Each row corresponds to a gene/transcript and each column corresponds
 to a sample.
 NOTE: these are NOT log_2 transformed. Also, the rownames are gene/transcript
-names and NOT included as a separate column
-@param assayName When input is a SummarizedExperiment, names the specific
+names and NOT included as a separate column}
+
+\item{assayName}{When input is a SummarizedExperiment, names the specific
 assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]}
 }
 \value{

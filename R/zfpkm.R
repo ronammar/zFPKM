@@ -43,7 +43,7 @@
 #'  to a sample.
 #'  NOTE: these are NOT log_2 transformed. Also, the rownames are gene/transcript
 #'  names and NOT included as a separate column
-#'  @param assayName When input is a SummarizedExperiment, names the specific
+#' @param assayName When input is a SummarizedExperiment, names the specific
 #'  assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]
 #'
 #' @return zFPKM data frame
@@ -98,7 +98,7 @@ zFPKM<- function(fpkmDF, assayName="fpkm") {
 #'  to a sample.
 #'  NOTE: these are NOT log_2 transformed. Also, the rownames are gene/transcript
 #'  names and NOT included as a separate column
-#'  @param assayName When input is a SummarizedExperiment, names the specific
+#' @param assayName When input is a SummarizedExperiment, names the specific
 #'  assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]
 #' @param PlotFileName Plot the densities to specified file (.png) [default = NULL]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
