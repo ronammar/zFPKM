@@ -1,6 +1,6 @@
 Package: zFPKM
 Title: A suite of functions to facilitate zFPKM transformations
-Version: 0.99.10
+Version: 0.99.11
 Authors@R: 
     c(
       person("Ron", "Ammar", role = c("aut", "cre"), email = "ron.ammar@bms.com"),
@@ -14,7 +14,7 @@ Description: Perform the zFPKM transform on RNA-seq FPKM data. This algorithm
 License: GPL-3 | file LICENSE
 URL: https://github.com/ronammar/zFPKM/
 BugReports: https://github.com/ronammar/zFPKM/issues
-Imports: checkmate, dplyr, ggplot2, tidyr
+Imports: checkmate, dplyr, ggplot2, tidyr, SummarizedExperiment
 Suggests: knitr, limma, edgeR, GEOquery, stringr, printr
 VignetteBuilder: knitr
 biocViews: RNASeq, FeatureExtraction, Software, GeneExpression

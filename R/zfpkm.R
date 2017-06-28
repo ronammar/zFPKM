@@ -38,10 +38,13 @@
 #' @references \url{http://www.ncbi.nlm.nih.gov/pubmed/24215113}
 #' @keywords zFPKM
 #'
-#' @param fpkmDF A data frame of raw FPKM (or TPM) values. Each row corresponds
-#'  to a gene/transcript and each column corresponds to a sample. NOTE: these
-#'  are NOT log_2 transformed. Also, the rownames are gene/transcript names and
-#'  NOT included as a separate column
+#' @param fpkmDF A SummarizedExperiment or data frame containing raw FPKM (or TPM)
+#'  values. Each row corresponds to a gene/transcript and each column corresponds
+#'  to a sample.
+#'  NOTE: these are NOT log_2 transformed. Also, the rownames are gene/transcript
+#'  names and NOT included as a separate column
+#'  @param assayName When input is a SummarizedExperiment, names the specific
+#'  assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]
 #'
 #' @return zFPKM data frame
 #'
@@ -55,12 +58,17 @@
 #'
 #' zfpkm <- zFPKM(MyFPKMdf)
 #'
-#' @import checkmate dplyr ggplot2 tidyr
+#' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment
 #'
 #' @export
-zFPKM<- function(fpkmDF) {
+zFPKM<- function(fpkmDF, assayName="fpkm") {
 
-  assertDataFrame(fpkmDF)
+  assert(checkDataFrame(fpkmDF), checkClass(fpkmDF, "SummarizedExperiment"),
+         combine="or")
+
+  if (class(fpkmDF) == "SummarizedExperiment") {
+    fpkmDF <- assay(fpkmDF, assayName)
+  }
 
   zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
   outputs <- list()
@@ -85,10 +93,13 @@ zFPKM<- function(fpkmDF) {
 #' @references \url{http://www.ncbi.nlm.nih.gov/pubmed/24215113}
 #' @keywords zFPKM
 #'
-#' @param fpkmDF A data frame of raw FPKM (or TPM) values. Each row corresponds
-#'  to a gene/transcript and each column corresponds to a sample. NOTE: these
-#'  are NOT log_2 transformed. Also, the rownames are gene/transcript names and
-#'  NOT included as a separate column
+#' @param fpkmDF A SummarizedExperiment or data frame containing raw FPKM (or TPM)
+#'  values. Each row corresponds to a gene/transcript and each column corresponds
+#'  to a sample.
+#'  NOTE: these are NOT log_2 transformed. Also, the rownames are gene/transcript
+#'  names and NOT included as a separate column
+#'  @param assayName When input is a SummarizedExperiment, names the specific
+#'  assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]
 #' @param PlotFileName Plot the densities to specified file (.png) [default = NULL]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
 #' @param PlotXfloor Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable
@@ -105,12 +116,18 @@ zFPKM<- function(fpkmDF) {
 #'
 #' zFPKMPlot(MyFPKMdf)
 #'
-#' @import checkmate dplyr ggplot2 tidyr
+#' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment
 #'
 #' @export
-zFPKMPlot <- function(fpkmDF, PlotFileName=NULL, FacetTitles=FALSE, PlotXfloor=-20) {
+zFPKMPlot <- function(fpkmDF, assayName="fpkm", PlotFileName=NULL,
+                      FacetTitles=FALSE, PlotXfloor=-20) {
 
-  assertDataFrame(fpkmDF)
+  assert(checkDataFrame(fpkmDF), checkClass(fpkmDF, "SummarizedExperiment"),
+         combine="or")
+
+  if (class(fpkmDF) == "SummarizedExperiment") {
+    fpkmDF <- assay(fpkmDF, assayName)
+  }
 
   zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
   outputs <- list()

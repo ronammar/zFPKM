@@ -73,13 +73,13 @@ We compute zFPKM.
 
 ```{r}
 library(zFPKM)
-assay(se, "zfpkm") <- zFPKM(assay(se, "fpkm"))
+assay(se, "zfpkm") <- zFPKM(se)
 ```
 
 We can also plot the Guassian fit to the FPKM data for which the z-scores are based.
 
 ```{r}
-zFPKMPlot(assay(se, "fpkm"))
+zFPKMPlot(se)
 ```
 
 To determine which genes are *active*, we compute the median expression within each group.
