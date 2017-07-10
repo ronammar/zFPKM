@@ -4,8 +4,8 @@
 \alias{zFPKMPlot}
 \title{zFPKM Transformation}
 \usage{
-zFPKMPlot(fpkmDF, assayName = "fpkm", PlotFileName = NULL,
-  FacetTitles = FALSE, PlotXfloor = -20)
+zFPKMPlot(fpkmDF, assayName = "fpkm", FacetTitles = FALSE,
+  PlotXfloor = -20)
 }
 \arguments{
 \item{fpkmDF}{A SummarizedExperiment or data frame containing raw FPKM (or TPM)
@@ -16,8 +16,6 @@ names and NOT included as a separate column}
 
 \item{assayName}{When input is a SummarizedExperiment, names the specific
 assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]}
-
-\item{PlotFileName}{Plot the densities to specified file (.png) [default = NULL]}
 
 \item{FacetTitles}{use to label each facet with the sample name [default = FALSE]}
 

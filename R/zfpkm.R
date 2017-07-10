@@ -19,11 +19,8 @@
 #   Updated plotting options. Minor refactor. Using checkmate.
 # RA 1Jun2017:
 #   Separating zFPKM calc and plotting as per Bioconductor review suggestion.
-
-### Libraries
-# library(dplyr)
-# library(ggplot2)
-# library(tidyr)
+# RA 10Jul2017:
+#   Style changes for Bioconductor submission.
 
 
 #' zFPKM Transformation
@@ -66,20 +63,9 @@ zFPKM<- function(fpkmDF, assayName="fpkm") {
   assert(checkDataFrame(fpkmDF), checkClass(fpkmDF, "SummarizedExperiment"),
          combine="or")
 
-  if (class(fpkmDF) == "SummarizedExperiment") {
-    fpkmDF <- assay(fpkmDF, assayName)
-  }
-
-  zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
-  outputs <- list()
-  for (c in colnames(fpkmDF)) {
-    output <- zFPKMCalc(fpkmDF[, c])
-    zFPKMDF[, c] <- output$z
-    outputs[[c]] <- output
-  }
-
-  return(zFPKMDF)
+  return(zFPKMTransform(fpkmDF, assayName)[[2]])
 }
+
 
 #' zFPKM Transformation
 #'
@@ -100,11 +86,9 @@ zFPKM<- function(fpkmDF, assayName="fpkm") {
 #'  names and NOT included as a separate column
 #' @param assayName When input is a SummarizedExperiment, names the specific
 #'  assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]
-#' @param PlotFileName Plot the densities to specified file (.png) [default = NULL]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
 #' @param PlotXfloor Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable
 #'
-#' @return zFPKM data frame
 #'
 #' @examples
 #' library(dplyr)
@@ -119,11 +103,23 @@ zFPKM<- function(fpkmDF, assayName="fpkm") {
 #' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment
 #'
 #' @export
-zFPKMPlot <- function(fpkmDF, assayName="fpkm", PlotFileName=NULL,
-                      FacetTitles=FALSE, PlotXfloor=-20) {
+zFPKMPlot <- function(fpkmDF, assayName="fpkm", FacetTitles=FALSE, PlotXfloor=-20) {
 
   assert(checkDataFrame(fpkmDF), checkClass(fpkmDF, "SummarizedExperiment"),
          combine="or")
+
+  PlotGaussianFitDF(zFPKMTransform(fpkmDF, assayName)[[1]], FacetTitles, PlotXfloor)
+}
+
+
+zFPKMTransform <- function(fpkmDF, assayName) {
+  # Helper function for zFPKM output and plotting. Do not call directly.
+  #
+  # Args:
+  #   Defined by zFPKM() and zFPKMPlot()
+  #
+  # Returns:
+  #   Internal objects used for zFPKM calculations and plotting.
 
   if (class(fpkmDF) == "SummarizedExperiment") {
     fpkmDF <- assay(fpkmDF, assayName)
@@ -137,34 +133,9 @@ zFPKMPlot <- function(fpkmDF, assayName="fpkm", PlotFileName=NULL,
     outputs[[c]] <- output
   }
 
-  PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
-
-  if (!is.null(PlotFileName)) {
-    png(file=PlotFileName, width=8, height=8, units='in', res=300)
-    PlotGaussianFitDF(outputs, FacetTitles, PlotXfloor)
-    invisible(dev.off())
-  }
+  return(list(outputs, zFPKMDF))
 }
 
-zFPKMTransform <- function(fpkm) {
-  # Performs the zFPKM transform on RNA-seq FPKM data.
-  #
-  # Args:
-  #   fpkm: a vector of raw FPKM values. NOTE: these are NOT log_2 transformed.
-  #
-  # Returns:
-  #   The zFPKM transformed data frame of the input FPKM data
-
-  if (!is.numeric(fpkm)) {
-    stop("argument 'fpkm' must be numeric")
-  }
-
-  output <- zFPKMCalc(fpkm)
-
-  PlotGaussianFit(output)
-
-  return(output$z)
-}
 
 zFPKMCalc <- function(fpkm) {
   # Performs the zFPKM transform on RNA-seq FPKM data. This involves fitting a
@@ -204,6 +175,7 @@ zFPKMCalc <- function(fpkm) {
   return(result)
 }
 
+
 ZFPKMResult <- function(zfpkmVector, density, mu, stdev) {
   # S3 class to store zFPKM vector and related metrics to be used in plotting
 
@@ -218,40 +190,6 @@ ZFPKMResult <- function(zfpkmVector, density, mu, stdev) {
   return(this)
 }
 
-PlotGaussianFit <- function(result) {
-  # Plot the log_2(FPKM) density and the fitted Gaussian (scale both to the
-  # same density scale so that the curves overlap).
-
-  d <- result$d
-  mu <- result$m
-  stdev <- result$s
-
-  # Get max of each density and then compute the factor to multiply the
-  # fitted Gaussian. NOTE: This is for plotting purposes only, not for zFPKM
-  # transform.
-  fitted <- dnorm(d$x, mean=mu, sd=stdev)
-
-  maxFPKM <- max(d$y)
-  maxFitted <- max(fitted)
-
-  scaleFitted <- fitted * (maxFPKM / maxFitted)
-
-  df <- data.frame(log2fpkm=d$x, fpkm_density=d$y,
-                   fitted_density_scaled=scaleFitted)
-  ## No need to include the unscaled fitted Gaussian
-  #df <- data.frame(log2fpkm=d$x, fpkm_density=d$y,
-  #                  fitted_density_scaled=scaleFitted, fitted_density=fitted)
-  dfg <- df %>% tidyr::gather(source, density, -log2fpkm)
-
-  p <- ggplot2::ggplot(dfg, ggplot2::aes(x=log2fpkm, y=density, color=source)) +
-    ggplot2::geom_line(size=1, alpha=0.7) +
-    ggplot2::theme_bw() +
-    ggplot2::labs(x="log2(FPKM)", y="[scaled] density",
-                 title=paste("Check Gaussian fit (m=", round(mu, 2), " sd=",
-                     round(stdev, 2), ")", sep=""))
-
-  print(p)
-}
 
 PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
   # Plot a grid of the log_2(FPKM) density and the fitted Gaussian (scale both
@@ -277,7 +215,7 @@ PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
 
     df <- data.frame(sample_name=name, log2fpkm=d$x, fpkm_density=d$y,
                      fitted_density_scaled=scaleFitted)
-#browser()
+
     megaDF <- megaDF %>% dplyr::bind_rows(df)
   }
 
@@ -293,10 +231,10 @@ PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
     ggplot2::theme(legend.position="top") +
     ggplot2::xlim(PlotXfloor, maxX)
 
-    if (!FacetTitles) {  #remove the title on each facet
-      p = p  + ggplot2::theme(strip.background = ggplot2::element_blank(),
-                     strip.text = ggplot2::element_blank())
-    }
+  if (!FacetTitles) {  #remove the title on each facet
+    p = p  + ggplot2::theme(strip.background = ggplot2::element_blank(),
+                            strip.text = ggplot2::element_blank())
+  }
 
   print(p)
 }
