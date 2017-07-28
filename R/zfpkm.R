@@ -121,7 +121,7 @@ zFPKMTransform <- function(fpkmDF, assayName) {
   # Returns:
   #   Internal objects used for zFPKM calculations and plotting.
 
-  if (class(fpkmDF) == "SummarizedExperiment") {
+  if (is(fpkmDF, "SummarizedExperiment")) {
     fpkmDF <- assay(fpkmDF, assayName)
   }
 
@@ -129,7 +129,7 @@ zFPKMTransform <- function(fpkmDF, assayName) {
   outputs <- list()
   for (c in colnames(fpkmDF)) {
     output <- zFPKMCalc(fpkmDF[, c])
-    zFPKMDF[, c] <- output$z
+    zFPKMDF[, c] <- output[["z"]]
     outputs[[c]] <- output
   }
 
@@ -161,7 +161,7 @@ zFPKMCalc <- function(fpkm) {
   d <- density(fpkmLog2)
 
   # Set the maximum point in the density as the mean for the fitted Gaussian
-  mu <- d$x[which.max(d$y)]
+  mu <- d[["x"]][which.max(d[["y"]])]
 
   # Determine the standard deviation
   U <- mean(fpkmLog2[fpkmLog2 > mu])
@@ -179,15 +179,15 @@ zFPKMCalc <- function(fpkm) {
 ZFPKMResult <- function(zfpkmVector, density, mu, stdev) {
   # S3 class to store zFPKM vector and related metrics to be used in plotting
 
-  this <- list(
+  zfpkmRes <- list(
     z = zfpkmVector,
     d = density,
     m = mu,
     s = stdev
   )
 
-  class(this) <- append(class(this), "zFPKM")
-  return(this)
+  class(zfpkmRes) <- append(class(zfpkmRes), "zFPKM")
+  return(zfpkmRes)
 }
 
 
@@ -199,21 +199,21 @@ PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
 
   for (name in names(results)) {
     result <- results[[name]]
-    d <- result$d
-    mu <- result$m
-    stdev <- result$s
+    d <- result[["d"]]
+    mu <- result[["m"]]
+    stdev <- result[["s"]]
 
     # Get max of each density and then compute the factor to multiply the
     # fitted Gaussian. NOTE: This is for plotting purposes only, not for zFPKM
     # transform.
-    fitted <- dnorm(d$x, mean=mu, sd=stdev)
+    fitted <- dnorm(d[["x"]], mean=mu, sd=stdev)
 
-    maxFPKM <- max(d$y)
+    maxFPKM <- max(d[["y"]])
     maxFitted <- max(fitted)
 
     scaleFitted <- fitted * (maxFPKM / maxFitted)
 
-    df <- data.frame(sample_name=name, log2fpkm=d$x, fpkm_density=d$y,
+    df <- data.frame(sample_name=name, log2fpkm=d[["x"]], fpkm_density=d[["y"]],
                      fitted_density_scaled=scaleFitted)
 
     megaDF <- megaDF %>% dplyr::bind_rows(df)
@@ -221,7 +221,7 @@ PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
 
   megaDFG <- megaDF %>% tidyr::gather(source, density, -c(log2fpkm, sample_name))
 
-  maxX = max(megaDFG$log2fpkm)
+  maxX = max(megaDFG[["log2fpkm"]])
 
   p <- ggplot2::ggplot(megaDFG, ggplot2::aes(x=log2fpkm, y=density, color=source)) +
     ggplot2::facet_wrap(~ sample_name) +
