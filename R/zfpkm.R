@@ -89,6 +89,7 @@ zFPKM<- function(fpkmDF, assayName="fpkm") {
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
 #' @param PlotXfloor Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable
 #'
+#' @return Displays plots of zFPKM distributions
 #'
 #' @examples
 #' library(dplyr)
