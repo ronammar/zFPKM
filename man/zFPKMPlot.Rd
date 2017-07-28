@@ -21,6 +21,9 @@ assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]}
 
 \item{PlotXfloor}{Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable}
 }
+\value{
+Displays plots of zFPKM distributions
+}
 \description{
 Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is
 based on the publication by Hart et al., 2013 (Pubmed ID 24215113). Reference recommends
