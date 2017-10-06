@@ -1,3 +1,5 @@
+![BioC status badge](http://bioconductor.org/shields/years-in-bioc/zFPKM.svg)
+
 # zFPKM Transformation
 
 ## Summary
