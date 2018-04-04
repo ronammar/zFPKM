@@ -130,8 +130,6 @@ zFPKMTransform <- function(fpkmDF, assayName) {
   # of effective lengths = 0 when calculating FPKM.
   fpkm <- fpkm[which(!apply(fpkm, 1, function(r) all(is.nan(r)))), ]
 
-  which(!apply(fpkm, 1, function(r) all(is.nan(r))))
-
   zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
   outputs <- list()
   for (c in colnames(fpkmDF)) {
