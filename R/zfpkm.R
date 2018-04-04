@@ -67,6 +67,13 @@ zFPKM<- function(fpkmDF, assayName="fpkm") {
 }
 
 
+removeNanRows <- function(fpkm) {
+  # Remove FPKM rows containing all NaN values. These are most likely a result
+  # of effective lengths = 0 when calculating FPKM.
+  return(fpkm[which(!apply(fpkm, 1, function(r) all(is.nan(r)))), ])
+}
+
+
 #' zFPKM Transformation
 #'
 #' Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is
@@ -126,9 +133,7 @@ zFPKMTransform <- function(fpkmDF, assayName) {
     fpkmDF <- assay(fpkmDF, assayName)
   }
 
-  # Remove FPKM rows containing all NaN values. These are most likely a result
-  # of effective lengths = 0 when calculating FPKM.
-  fpkm <- fpkm[which(!apply(fpkm, 1, function(r) all(is.nan(r)))), ]
+  fpkmDF <- removeNanRows(fpkmDF)
 
   zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
   outputs <- list()
