@@ -67,10 +67,10 @@ zFPKM<- function(fpkmDF, assayName="fpkm") {
 }
 
 
-removeNanRows <- function(fpkm) {
+removeNanInfRows <- function(fpkm) {
   # Remove FPKM rows containing all NaN values. These are most likely a result
   # of effective lengths = 0 when calculating FPKM.
-  return(fpkm[which(!apply(fpkm, 1, function(r) all(is.nan(r)))), ])
+  return(fpkm[which(!apply(fpkm, 1, function(r) all(is.nan(r) | is.infinite(r)))), ])
 }
 
 
@@ -133,7 +133,7 @@ zFPKMTransform <- function(fpkmDF, assayName) {
     fpkmDF <- assay(fpkmDF, assayName)
   }
 
-  fpkmDF <- removeNanRows(fpkmDF)
+  fpkmDF <- removeNanInfRows(fpkmDF)
 
   zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
   outputs <- list()
