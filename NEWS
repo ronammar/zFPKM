@@ -1,3 +1,11 @@
+zFPKM 0.99.19
+----------------------------------------------------------------
+
+* Automatically remove FPKM matrix rows that are entirely made up of NaN values.
+  This is likely due to using an effective length of 0 to compute FPKM for that
+  gene.
+
+
 zFPKM 0.99.18
 ----------------------------------------------------------------
 
