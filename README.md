@@ -1,3 +1,5 @@
+![BioC status badge](http://bioconductor.org/shields/years-in-bioc/zFPKM.svg)
+
 # zFPKM Transformation
 
 ## Summary
@@ -7,6 +9,21 @@ Perform the zFPKM transform on RNA-seq FPKM data. This algorithm is based on the
 expressed genes. Validated with ENCODE open/closed promoter chromatin structure epigenetic data on six of the ENCODE 
 cell lines. It works well for gene level data using FPKM or TPM, but does not appear to calibrate well for transcript level 
 data.
+
+## Installation
+
+The `zFPKM` package is now part of [Bioconductor](http://bioconductor.org/packages/devel/bioc/html/zFPKM.html), and can be installed by typing the following into an `R` console.
+
+```r
+source("https://bioconductor.org/biocLite.R")
+biocLite("zFPKM")
+```
+
+Alternatively, to install the newest version directly from the GitHub repository.
+
+```r
+devtools::install_github("ronammar/zFPKM")
+```
 
 ## Example
 
