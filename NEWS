@@ -1,4 +1,4 @@
-zFPKM 0.99.19
+zFPKM 1.0.1
 ----------------------------------------------------------------
 
 * Automatically remove FPKM matrix rows that are entirely made up of NaN values.
