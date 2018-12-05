@@ -1,6 +1,6 @@
 Package: zFPKM
 Title: A suite of functions to facilitate zFPKM transformations
-Version: 1.0.1
+Version: 1.0.2
 Authors@R: 
     c(
       person("Ron", "Ammar", role = c("aut", "cre"), email = "ron.ammar@bms.com"),
@@ -17,7 +17,7 @@ BugReports: https://github.com/ronammar/zFPKM/issues
 Imports: checkmate, dplyr, ggplot2, tidyr, SummarizedExperiment
 Suggests: knitr, limma, edgeR, GEOquery, stringr, printr
 VignetteBuilder: knitr
-biocViews: RNASeq, FeatureExtraction, Software, GeneExpression
+biocViews: RNASeq, FeatureExtraction, Software, GeneExpression, ImmunoOncology
 Depends: R (>= 3.4.0)
 LazyData: true
 RoxygenNote: 6.0.1
