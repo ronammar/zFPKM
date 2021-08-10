@@ -1,6 +1,6 @@
 Package: zFPKM
 Title: A suite of functions to facilitate zFPKM transformations
-Version: 1.0.2
+Version: 1.0.3
 Authors@R: 
     c(
       person("Ron", "Ammar", role = c("aut", "cre"), email = "ron.ammar@bms.com"),
@@ -15,7 +15,7 @@ License: GPL-3 | file LICENSE
 URL: https://github.com/ronammar/zFPKM/
 BugReports: https://github.com/ronammar/zFPKM/issues
 Imports: checkmate, dplyr, ggplot2, tidyr, SummarizedExperiment
-Suggests: knitr, limma, edgeR, GEOquery, stringr, printr
+Suggests: knitr, limma, edgeR, GEOquery, stringr, printr, rmarkdown
 VignetteBuilder: knitr
 biocViews: RNASeq, FeatureExtraction, Software, GeneExpression, ImmunoOncology
 Depends: R (>= 3.4.0)
