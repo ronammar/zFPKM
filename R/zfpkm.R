@@ -171,7 +171,8 @@ zFPKMCalc <- function(fpkm) {
   d <- density(fpkmLog2)
 
   # Set the maximum point in the density as the mean for the fitted Gaussian
-  mu <- d[["x"]][which.max(d[["y"]])]
+  # only for x values higher than 0.
+  mu <- d$x[d$x > 0][which.max(d$y[d$x > 0])]
 
   # Determine the standard deviation
   U <- mean(fpkmLog2[fpkmLog2 > mu])
