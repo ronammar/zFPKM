@@ -247,5 +247,5 @@ PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
                             strip.text = ggplot2::element_blank())
   }
 
-  print(p)
+  return(p)
 }
