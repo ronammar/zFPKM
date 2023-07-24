@@ -116,7 +116,8 @@ zFPKMPlot <- function(fpkmDF, assayName="fpkm", FacetTitles=FALSE, PlotXfloor=-2
   assert(checkDataFrame(fpkmDF), checkClass(fpkmDF, "SummarizedExperiment"),
          combine="or")
 
-  PlotGaussianFitDF(zFPKMTransform(fpkmDF, assayName)[[1]], FacetTitles, PlotXfloor)
+  p <- PlotGaussianFitDF(zFPKMTransform(fpkmDF, assayName)[[1]], FacetTitles, PlotXfloor)
+  return(p)
 }
 
 
