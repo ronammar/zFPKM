@@ -55,7 +55,7 @@
 #'
 #' zfpkm <- zFPKM(MyFPKMdf)
 #'
-#' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment
+#' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment pracma
 #'
 #' @export
 zFPKM<- function(fpkmDF, assayName="fpkm") {
@@ -108,7 +108,7 @@ removeNanInfRows <- function(fpkm) {
 #'
 #' zFPKMPlot(MyFPKMdf)
 #'
-#' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment
+#' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment pracma
 #'
 #' @export
 zFPKMPlot <- function(fpkmDF, assayName="fpkm", FacetTitles=FALSE, PlotXfloor=-20) {
@@ -171,9 +171,18 @@ zFPKMCalc <- function(fpkm) {
   # Compute kernel density estimate
   d <- density(fpkmLog2)
 
+  # Obtain the higher peak, in case the higher peak is lower than the peak
+  # from the 'active' gene.
+
+  peak_est <- pracma::findpeaks(d$y, minpeakheight = 0.01, minpeakdistance = 1)
+  peak_pos <- d$x[peak_est[, 2]] # peak position
+  max_x_index <- which.max(peak_pos) # peak with the highest x-value
+
   # Set the maximum point in the density as the mean for the fitted Gaussian
-  # only for x values higher than 0.
-  mu <- d$x[d$x > 0][which.max(d$y[d$x > 0])]
+  mu <- peak_pos[max_x_index]
+
+  # Estimate y value (i.e., maximum FPKM)
+  maxFPKM <- d$y[peak_est[max_x_index, 2]]
 
   # Determine the standard deviation
   U <- mean(fpkmLog2[fpkmLog2 > mu])
@@ -182,20 +191,21 @@ zFPKMCalc <- function(fpkm) {
   # Compute zFPKM transform
   zFPKM <- (fpkmLog2 - mu) / stdev
 
-  result <- ZFPKMResult(zFPKM, d, mu, stdev)
+  result <- ZFPKMResult(zFPKM, d, mu, stdev, maxFPKM)
 
   return(result)
 }
 
 
-ZFPKMResult <- function(zfpkmVector, density, mu, stdev) {
+ZFPKMResult <- function(zfpkmVector, density, mu, stdev, maxFPKM) {
   # S3 class to store zFPKM vector and related metrics to be used in plotting
 
   zfpkmRes <- list(
     z = zfpkmVector,
     d = density,
     m = mu,
-    s = stdev
+    s = stdev,
+    y = maxFPKM
   )
 
   class(zfpkmRes) <- append(class(zfpkmRes), "zFPKM")
@@ -214,13 +224,14 @@ PlotGaussianFitDF <- function(results, FacetTitles=FALSE, PlotXfloor) {
     d <- result[["d"]]
     mu <- result[["m"]]
     stdev <- result[["s"]]
+    maxFPKM <- result[["y"]]
 
     # Get max of each density and then compute the factor to multiply the
     # fitted Gaussian. NOTE: This is for plotting purposes only, not for zFPKM
     # transform.
     fitted <- dnorm(d[["x"]], mean=mu, sd=stdev)
 
-    maxFPKM <- max(d[["y"]])
+    # maxFPKM <- max(d[["y"]])
     maxFitted <- max(fitted)
 
     scaleFitted <- fitted * (maxFPKM / maxFitted)

@@ -4,8 +4,7 @@
 \alias{zFPKMPlot}
 \title{zFPKM Transformation}
 \usage{
-zFPKMPlot(fpkmDF, assayName = "fpkm", FacetTitles = FALSE,
-  PlotXfloor = -20)
+zFPKMPlot(fpkmDF, assayName = "fpkm", FacetTitles = FALSE, PlotXfloor = -20)
 }
 \arguments{
 \item{fpkmDF}{A SummarizedExperiment or data frame containing raw FPKM (or TPM)
