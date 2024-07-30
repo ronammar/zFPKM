@@ -4,7 +4,8 @@ Version: 1.0.3
 Authors@R: 
     c(
       person("Ron", "Ammar", role = c("aut", "cre"), email = "ron.ammar@bms.com"),
-      person("John", "Thompson", role = "aut", email = "john.thompson@bms.com")
+      person("John", "Thompson", role = "aut", email = "john.thompson@bms.com"),
+      person("Jaruwatana Sodai", "Lotharukpong", role = "ctb", email = "jaruwatana.lotharukpong@tuebingen.mpg.de", comment = c(ORCID = "0000-0002-3475-0980"))
     )
 Description: Perform the zFPKM transform on RNA-seq FPKM data. This algorithm
     is based on the publication by Hart et al., 2013 (Pubmed ID 24215113). Reference
