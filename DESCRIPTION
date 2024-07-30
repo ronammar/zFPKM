@@ -21,3 +21,4 @@ biocViews: RNASeq, FeatureExtraction, Software, GeneExpression, ImmunoOncology
 Depends: R (>= 3.4.0)
 LazyData: true
 RoxygenNote: 7.3.2
+Encoding: UTF-8

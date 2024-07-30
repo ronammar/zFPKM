@@ -21,7 +21,8 @@
 #   Separating zFPKM calc and plotting as per Bioconductor review suggestion.
 # RA 10Jul2017:
 #   Style changes for Bioconductor submission.
-
+# JSL 30Jul2024
+#   Added peak detection, useful for low input / (relatively dense) single cell data.
 
 #' zFPKM Transformation
 #'
@@ -42,6 +43,13 @@
 #'  names and NOT included as a separate column
 #' @param assayName When input is a SummarizedExperiment, names the specific
 #'  assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]
+#' @param peak_parameters A list containing two values for identifying peaks
+#'  in the density plot: minpeakheight and minpeakdistance (from pracma::findpeaks).
+#'  Default is \code{peak_parameters = list(minpeakheight = 0.02, minpeakdistance = 1)}
+#'  \itemize{
+#'  \item minpeakheight: the minimum (absolute) height a peak has to have to be recognized as such. Default is 0.02.
+#'  \item minpeakdistance: the minimum distance (in indices) peaks have to have to be counted. Default is 1.
+#'  }
 #'
 #' @return zFPKM data frame
 #'
@@ -55,15 +63,22 @@
 #'
 #' zfpkm <- zFPKM(MyFPKMdf)
 #'
+#' # using different parameters to identify peaks
+#' zfpkm <- zFPKM(MyFPKMdf, peak_parameters = list(0.01, 1))
+#'
 #' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment pracma
 #'
 #' @export
-zFPKM<- function(fpkmDF, assayName="fpkm") {
+zFPKM<- function(fpkmDF, assayName="fpkm", peak_parameters = list(0.02, 1)) {
 
   assert(checkDataFrame(fpkmDF), checkClass(fpkmDF, "SummarizedExperiment"),
          combine="or")
 
-  return(zFPKMTransform(fpkmDF, assayName)[[2]])
+  message(paste("peak identification parameters are:",
+        "minpeakheight =", peak_parameters[[1]], " and ",
+        "minpeakdistance =", peak_parameters[[2]]))
+
+  return(zFPKMTransform(fpkmDF, assayName, peak_parameters)[[2]])
 }
 
 
@@ -95,6 +110,13 @@ removeNanInfRows <- function(fpkm) {
 #'  assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]
 #' @param FacetTitles use to label each facet with the sample name [default = FALSE]
 #' @param PlotXfloor Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable
+#' @param peak_parameters A list containing two values for identifying peaks
+#'  in the density plot: minpeakheight and minpeakdistance (from pracma::findpeaks).
+#'  Default is \code{peak_parameters = list(minpeakheight = 0.02, minpeakdistance = 1)}
+#'  \itemize{
+#'  \item minpeakheight: the minimum (absolute) height a peak has to have to be recognized as such. Default is 0.02.
+#'  \item minpeakdistance: the minimum distance (in indices) peaks have to have to be counted. Default is 1.
+#'  }
 #'
 #' @return Displays plots of zFPKM distributions
 #'
@@ -108,24 +130,30 @@ removeNanInfRows <- function(fpkm) {
 #'
 #' zFPKMPlot(MyFPKMdf)
 #'
+#' # using different parameters to identify peaks
+#' zFPKMPlot(MyFPKMdf, peak_parameters = list(0.01, 1))
+#'
 #' @import checkmate dplyr ggplot2 tidyr SummarizedExperiment pracma
 #'
 #' @export
-zFPKMPlot <- function(fpkmDF, assayName="fpkm", FacetTitles=FALSE, PlotXfloor=-20) {
+zFPKMPlot <- function(fpkmDF, assayName="fpkm", FacetTitles=FALSE, PlotXfloor=-20, peak_parameters = list(0.02, 1)) {
 
   assert(checkDataFrame(fpkmDF), checkClass(fpkmDF, "SummarizedExperiment"),
          combine="or")
 
-  p <- PlotGaussianFitDF(zFPKMTransform(fpkmDF, assayName)[[1]], FacetTitles, PlotXfloor)
+  p <- PlotGaussianFitDF(zFPKMTransform(fpkmDF, assayName, peak_parameters)[[1]], FacetTitles, PlotXfloor)
   return(p)
 }
 
 
-zFPKMTransform <- function(fpkmDF, assayName) {
+zFPKMTransform <- function(fpkmDF, assayName, peak_parameters = list(0.02, 1)) {
   # Helper function for zFPKM output and plotting. Do not call directly.
   #
   # Args:
   #   Defined by zFPKM() and zFPKMPlot()
+  #   peak_parameters: a list containing two values
+  #     1. minpeakheight (default = 0.02)
+  #     2. minpeakdistance (default = 1)
   #
   # Returns:
   #   Internal objects used for zFPKM calculations and plotting.
@@ -139,7 +167,10 @@ zFPKMTransform <- function(fpkmDF, assayName) {
   zFPKMDF <- data.frame(row.names=row.names(fpkmDF))
   outputs <- list()
   for (c in colnames(fpkmDF)) {
-    output <- zFPKMCalc(fpkmDF[, c])
+    output <-
+      zFPKMCalc(
+        fpkmDF[, c],
+        peak_parameters = peak_parameters)
     zFPKMDF[, c] <- output[["z"]]
     outputs[[c]] <- output
   }
@@ -148,7 +179,7 @@ zFPKMTransform <- function(fpkmDF, assayName) {
 }
 
 
-zFPKMCalc <- function(fpkm) {
+zFPKMCalc <- function(fpkm, peak_parameters = list(0.02, 1)) {
   # Performs the zFPKM transform on RNA-seq FPKM data. This involves fitting a
   # Gaussian distribution based on the right side of the FPKM distribution, as
   # described by Hart et al., 2013 (Pubmed ID 24215113). The zFPKM transformed
@@ -157,6 +188,9 @@ zFPKMCalc <- function(fpkm) {
   #
   # Args:
   #   fpkm: a vector of raw FPKM values. NOTE: these are NOT log_2 transformed.
+  #   peak_parameters: a list containing two values
+  #     1. minpeakheight (default = 0.02)
+  #     2. minpeakdistance (default = 1)
   #
   # Returns:
   #   The zFPKM transformed vector of the input FPKM data
@@ -174,7 +208,11 @@ zFPKMCalc <- function(fpkm) {
   # Obtain the higher peak, in case the higher peak is lower than the peak
   # from the 'active' gene.
 
-  peak_est <- pracma::findpeaks(d$y, minpeakheight = 0.01, minpeakdistance = 1)
+  peak_est <-
+    pracma::findpeaks(
+      d$y,
+      minpeakheight = peak_parameters[[1]],
+      minpeakdistance = peak_parameters[[2]])
   peak_pos <- d$x[peak_est[, 2]] # peak position
   max_x_index <- which.max(peak_pos) # peak with the highest x-value
 
