@@ -38,10 +38,10 @@ fpkm <- read.csv(gzfile(temp), row.names=1)
 fpkm <- select(fpkm, -MGI_Symbol)
 
 library(zFPKM)
-zfpkm <- zFPKMTransformDF(fpkm)
+zfpkm <- zFPKM(fpkm)
 ```
 
-The `zFPKMTransformDF` function also optionally  plots the Guassian fit to the FPKM data for which the z-scores are based.
+The `zFPKM` function also optionally  plots the Guassian fit to the FPKM data for which the z-scores are based.
 
 ![](figs/README_plot.png)
 

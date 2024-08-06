@@ -4,7 +4,7 @@
 \alias{zFPKM}
 \title{zFPKM Transformation}
 \usage{
-zFPKM(fpkmDF, assayName = "fpkm")
+zFPKM(fpkmDF, assayName = "fpkm", peak_parameters = list(0.02, 1))
 }
 \arguments{
 \item{fpkmDF}{A SummarizedExperiment or data frame containing raw FPKM (or TPM)
@@ -15,6 +15,14 @@ names and NOT included as a separate column}
 
 \item{assayName}{When input is a SummarizedExperiment, names the specific
 assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]}
+
+\item{peak_parameters}{A list containing two values for identifying peaks
+in the density plot: minpeakheight and minpeakdistance (from pracma::findpeaks).
+Default is \code{peak_parameters = list(minpeakheight = 0.02, minpeakdistance = 1)}
+\itemize{
+\item minpeakheight: the minimum (absolute) height a peak has to have to be recognized as such. Default is 0.02.
+\item minpeakdistance: the minimum distance (in indices) peaks have to have to be counted. Default is 1.
+}}
 }
 \value{
 zFPKM data frame
@@ -35,6 +43,9 @@ fpkm <- read.csv(gzfile(temp), row.names=1)
 MyFPKMdf <- select(fpkm, -MGI_Symbol)
 
 zfpkm <- zFPKM(MyFPKMdf)
+
+# using different parameters to identify peaks
+zfpkm <- zFPKM(MyFPKMdf, peak_parameters = list(0.01, 1))
 
 }
 \references{

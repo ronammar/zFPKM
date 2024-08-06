@@ -4,8 +4,13 @@
 \alias{zFPKMPlot}
 \title{zFPKM Transformation}
 \usage{
-zFPKMPlot(fpkmDF, assayName = "fpkm", FacetTitles = FALSE,
-  PlotXfloor = -20)
+zFPKMPlot(
+  fpkmDF,
+  assayName = "fpkm",
+  FacetTitles = FALSE,
+  PlotXfloor = -20,
+  peak_parameters = list(0.02, 1)
+)
 }
 \arguments{
 \item{fpkmDF}{A SummarizedExperiment or data frame containing raw FPKM (or TPM)
@@ -20,6 +25,14 @@ assay. Typically one of "fpkm" or "tpm" [default = "fpkm"]}
 \item{FacetTitles}{use to label each facet with the sample name [default = FALSE]}
 
 \item{PlotXfloor}{Lower limit for X axis (log2FPKM units) [default = -20] set to NULL to disable}
+
+\item{peak_parameters}{A list containing two values for identifying peaks
+in the density plot: minpeakheight and minpeakdistance (from pracma::findpeaks).
+Default is \code{peak_parameters = list(minpeakheight = 0.02, minpeakdistance = 1)}
+\itemize{
+\item minpeakheight: the minimum (absolute) height a peak has to have to be recognized as such. Default is 0.02.
+\item minpeakdistance: the minimum distance (in indices) peaks have to have to be counted. Default is 1.
+}}
 }
 \value{
 Displays plots of zFPKM distributions
@@ -40,6 +53,9 @@ fpkm <- read.csv(gzfile(temp), row.names=1)
 MyFPKMdf <- select(fpkm, -MGI_Symbol)
 
 zFPKMPlot(MyFPKMdf)
+
+# using different parameters to identify peaks
+zFPKMPlot(MyFPKMdf, peak_parameters = list(0.01, 1))
 
 }
 \references{
